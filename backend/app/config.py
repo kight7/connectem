@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     
     FRONTEND_URL: str
     ALLOWED_ORIGINS: List[str]
+    # Development helpers
+    DEV_AUTH_BYPASS: bool = False  # when true, allow a dev-only auth bypass for local testing
+    DEV_AUTH_BYPASS_USER_EMAIL: str | None = None  # optionally specify which user to return
 
     class Config:
         env_file = ".env"

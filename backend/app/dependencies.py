@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.app.database import get_db
 from backend.app.models.user import User
 from backend.app.utils.jwt import decode_access_token
+from backend.app.config import settings
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
@@ -30,6 +31,19 @@ async def get_current_user(
 
     payload = decode_access_token(token)
     if payload is None:
+        # Development bypass: return a local active user when enabled
+        # This allows testing routes locally without a valid JWT. Do NOT enable in production.
+        if settings.ENVIRONMENT == "development" and settings.DEV_AUTH_BYPASS:
+            # Try to return a specific user by email if configured, otherwise return the first active user.
+            if settings.DEV_AUTH_BYPASS_USER_EMAIL:
+                result = await db.execute(select(User).where(User.email == settings.DEV_AUTH_BYPASS_USER_EMAIL))
+                user = result.scalars().first()
+            else:
+                result = await db.execute(select(User).where(User.is_active == True))
+                user = result.scalars().first()
+
+            if user:
+                return user
         raise credentials_exception
 
     user_id: str = payload.get("sub")
