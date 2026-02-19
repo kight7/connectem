@@ -30,19 +30,6 @@ async def get_current_user(
     )
 
     payload = decode_access_token(token)
-    # Quick dev shortcut: if the token is exactly 'dev-bypass', return a local active user
-    # This is safe for local development only and requires no env changes or server restart.
-    if token == "dev-bypass":
-        if settings.ENVIRONMENT == "development":
-            if settings.DEV_AUTH_BYPASS_USER_EMAIL:
-                result = await db.execute(select(User).where(User.email == settings.DEV_AUTH_BYPASS_USER_EMAIL))
-                user = result.scalars().first()
-            else:
-                result = await db.execute(select(User).where(User.is_active == True))
-                user = result.scalars().first()
-
-            if user:
-                return user
     if payload is None:
         # Development bypass: return a local active user when enabled
         # This allows testing routes locally without a valid JWT. Do NOT enable in production.
