@@ -12,20 +12,22 @@ class CreatePostRequest(BaseModel):
     """Schema for creating a new hangout post."""
     title: str = Field(..., max_length=200)
     description: Optional[str] = None
-    # Accept any string for activity_type to stay flexible with enums stored in DB
-    activity_type: str
+    # Updated to match our new categories
+    activity_type: Literal['movies', 'dining_nightlife', 'adventure_trips', 'sports', 'casual_hangout', 'dating']
     city: str = Field(..., max_length=100)
     venue_name: Optional[str] = Field(None, max_length=200)
     venue_address: Optional[str] = None
     scheduled_at: datetime
     max_participants: int = Field(..., ge=2, le=50)
     is_public: bool = True
+    # New field for dating
+    dating_preferences: Optional[str] = None
 
 class UpdatePostRequest(BaseModel):
     """Schema for updating an existing hangout post (all fields optional)."""
     title: Optional[str] = Field(None, max_length=200)
     description: Optional[str] = None
-    activity_type: Optional[str] = None
+    activity_type: Optional[Literal['movies', 'dining_nightlife', 'adventure_trips', 'sports', 'casual_hangout', 'dating']] = None
     city: Optional[str] = Field(None, max_length=100)
     venue_name: Optional[str] = Field(None, max_length=200)
     venue_address: Optional[str] = None
